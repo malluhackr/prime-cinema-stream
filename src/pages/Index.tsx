@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import HeroBanner from "@/components/HeroBanner";
 import MovieSection from "@/components/MovieSection";
 import TabContentComponent from "@/components/TabContent";
+import MiniPlayer from "@/components/MiniPlayer";
 
 interface Movie {
   id: string;
@@ -41,6 +42,8 @@ const Index = () => {
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [selectedSeries, setSelectedSeries] = useState<WebSeries | null>(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showMiniPlayer, setShowMiniPlayer] = useState(false);
+  const [miniPlayerMovie, setMiniPlayerMovie] = useState<Movie | null>(null);
   
   // Simulate user authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -51,7 +54,6 @@ const Index = () => {
     progress: 45
   });
 
-  // Enhanced movie data with descriptions for banner
   const movies: Movie[] = [
     {
       id: "1",
@@ -192,8 +194,25 @@ const Index = () => {
     { icon: Shield, label: "Privacy Policy", id: "privacy" }
   ];
 
+  // Search functionality
+  const getSearchResults = () => {
+    if (!searchQuery.trim()) return [];
+    
+    const query = searchQuery.toLowerCase();
+    return movies.filter(movie => 
+      movie.title.toLowerCase().includes(query) ||
+      movie.director.toLowerCase().includes(query) ||
+      movie.cast.some(actor => actor.toLowerCase().includes(query)) ||
+      movie.genre.some(genre => genre.toLowerCase().includes(query))
+    );
+  };
+
   const handlePlayFromBanner = (movieId: string) => {
-    navigate("/video-player");
+    const movie = movies.find(m => m.id === movieId);
+    if (movie) {
+      setMiniPlayerMovie(movie);
+      setShowMiniPlayer(true);
+    }
   };
 
   const handleMovieInfo = (movie: Movie) => {
@@ -212,7 +231,8 @@ const Index = () => {
   };
 
   const handleMovieClick = (movie: Movie) => {
-    setSelectedMovie(movie);
+    setMiniPlayerMovie(movie);
+    setShowMiniPlayer(true);
   };
 
   const handleSeriesClick = (series: WebSeries) => {
@@ -221,6 +241,16 @@ const Index = () => {
 
   const handlePlayMovie = () => {
     navigate("/video-player");
+  };
+
+  const handleExpandMiniPlayer = () => {
+    setShowMiniPlayer(false);
+    navigate("/video-player");
+  };
+
+  const handleCloseMiniPlayer = () => {
+    setShowMiniPlayer(false);
+    setMiniPlayerMovie(null);
   };
 
   const getMoviesByLanguage = (language: string) => {
@@ -251,6 +281,8 @@ const Index = () => {
         setShowMobileMenu={setShowMobileMenu}
         menuItems={menuItems}
         onMenuClick={handleMenuClick}
+        searchResults={getSearchResults()}
+        onMovieClick={handleMovieClick}
       />
 
       {/* Hero Banner */}
@@ -334,10 +366,19 @@ const Index = () => {
         </Tabs>
       </div>
 
+      {/* Mini Player */}
+      {showMiniPlayer && miniPlayerMovie && (
+        <MiniPlayer
+          movie={miniPlayerMovie}
+          onExpand={handleExpandMiniPlayer}
+          onClose={handleCloseMiniPlayer}
+        />
+      )}
+
       {/* Movie Detail Modal */}
       {selectedMovie && (
         <Dialog open={!!selectedMovie} onOpenChange={() => setSelectedMovie(null)}>
-          <DialogContent className="bg-cinema-dark border-white/20 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="bg-black/95 backdrop-blur-md border-red-500/30 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <img
@@ -348,7 +389,7 @@ const Index = () => {
               </div>
               <div className="space-y-4">
                 <DialogHeader>
-                  <DialogTitle className="text-3xl">{selectedMovie.title}</DialogTitle>
+                  <DialogTitle className="text-3xl bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">{selectedMovie.title}</DialogTitle>
                 </DialogHeader>
                 <div className="flex items-center space-x-4 text-sm">
                   <span>{selectedMovie.year}</span>
@@ -358,17 +399,17 @@ const Index = () => {
                 <p className="text-gray-300 leading-relaxed">{selectedMovie.description}</p>
                 <div className="space-y-3">
                   <div>
-                    <h4 className="font-semibold text-cinema-gold">Director</h4>
+                    <h4 className="font-semibold text-red-400">Director</h4>
                     <p className="text-gray-300">{selectedMovie.director}</p>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-cinema-gold">Cast</h4>
+                    <h4 className="font-semibold text-red-400">Cast</h4>
                     <p className="text-gray-300">{selectedMovie.cast.join(", ")}</p>
                   </div>
                 </div>
                 <div className="flex space-x-4 pt-4">
                   <Button 
-                    className="bg-red-gradient hover:scale-105 transition-transform flex-1"
+                    className="bg-red-600 hover:bg-red-700 transform hover:scale-105 transition-all duration-200 flex-1"
                     onClick={handlePlayMovie}
                   >
                     <Play className="mr-2 h-5 w-5" />
@@ -384,7 +425,7 @@ const Index = () => {
       {/* Web Series Detail Modal */}
       {selectedSeries && (
         <Dialog open={!!selectedSeries} onOpenChange={() => setSelectedSeries(null)}>
-          <DialogContent className="bg-cinema-dark border-white/20 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="bg-black/95 backdrop-blur-md border-red-500/30 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <img
@@ -395,7 +436,7 @@ const Index = () => {
               </div>
               <div className="space-y-4">
                 <DialogHeader>
-                  <DialogTitle className="text-3xl">{selectedSeries.title}</DialogTitle>
+                  <DialogTitle className="text-3xl bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">{selectedSeries.title}</DialogTitle>
                 </DialogHeader>
                 <div className="flex items-center space-x-4 text-sm">
                   <span>{selectedSeries.year}</span>
@@ -405,7 +446,7 @@ const Index = () => {
                 <p className="text-gray-300 leading-relaxed">{selectedSeries.description}</p>
                 <div className="flex space-x-4 pt-4">
                   <Button 
-                    className="bg-red-gradient hover:scale-105 transition-transform flex-1"
+                    className="bg-red-600 hover:bg-red-700 transform hover:scale-105 transition-all duration-200 flex-1"
                     onClick={handlePlayMovie}
                   >
                     <Play className="mr-2 h-5 w-5" />

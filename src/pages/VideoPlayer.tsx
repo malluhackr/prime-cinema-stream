@@ -26,10 +26,12 @@ const VideoPlayer = () => {
     { id: "malayalam", label: "Malayalam", flag: "🇮🇳" },
     { id: "english", label: "English", flag: "🇺🇸" },
     { id: "tamil", label: "Tamil", flag: "🇮🇳" },
-    { id: "hindi", label: "Hindi", flag: "🇮🇳" }
+    { id: "hindi", label: "Hindi", flag: "🇮🇳" },
+    { id: "telugu", label: "Telugu", flag: "🇮🇳" },
+    { id: "kannada", label: "Kannada", flag: "🇮🇳" }
   ];
 
-  const qualities = ["360p", "720p", "1080p", "4K"];
+  const qualities = ["240p", "360p", "420p", "480p", "520p", "580p", "720p", "1080p", "1440p"];
   const playbackSpeeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
   useEffect(() => {
@@ -80,6 +82,19 @@ const VideoPlayer = () => {
     setCurrentTime(value[0]);
   };
 
+  const handleVolumeChange = (value: number[]) => {
+    setVolume(value[0]);
+    setIsMuted(value[0] === 0);
+  };
+
+  const skip10Forward = () => {
+    setCurrentTime(prev => Math.min(prev + 10, duration));
+  };
+
+  const skip10Backward = () => {
+    setCurrentTime(prev => Math.max(prev - 10, 0));
+  };
+
   return (
     <div 
       ref={playerRef}
@@ -110,19 +125,46 @@ const VideoPlayer = () => {
           {isPlaying ? <Pause className="h-12 w-12" /> : <Play className="h-12 w-12" />}
         </Button>
 
+        {/* Skip Controls */}
+        <Button
+          variant="ghost"
+          className={`absolute left-1/4 top-1/2 transform -translate-y-1/2 z-20 text-white hover:bg-red-600/20 transition-opacity duration-300 ${
+            showControls ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={skip10Backward}
+        >
+          <RotateCcw className="h-8 w-8" />
+          <span className="text-xs ml-1">10s</span>
+        </Button>
+
+        <Button
+          variant="ghost"
+          className={`absolute right-1/4 top-1/2 transform -translate-y-1/2 z-20 text-white hover:bg-red-600/20 transition-opacity duration-300 ${
+            showControls ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={skip10Forward}
+        >
+          <RotateCw className="h-8 w-8" />
+          <span className="text-xs ml-1">10s</span>
+        </Button>
+
         {/* Video Controls */}
-        <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-6 transition-opacity duration-300 ${
+        <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-6 transition-opacity duration-300 ${
           showControls ? 'opacity-100' : 'opacity-0'
         }`}>
           {/* Progress Bar */}
-          <div className="w-full mb-4">
+          <div className="w-full mb-6">
             <Slider
               value={[currentTime]}
               max={duration}
               step={1}
               onValueChange={handleSeek}
-              className="w-full cursor-pointer"
+              className="w-full cursor-pointer [&>span:first-child]:bg-red-600 [&>span:first-child>span]:bg-red-400"
             />
+            <div className="flex justify-between text-xs text-gray-400 mt-1">
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
+            </div>
           </div>
           
           <div className="flex items-center justify-between">
@@ -151,46 +193,59 @@ const VideoPlayer = () => {
                     <Volume2 className="h-5 w-5" />
                   )}
                 </Button>
-                <div className="w-20">
+                <div className="w-24">
                   <Slider
                     value={[isMuted ? 0 : volume]}
                     max={100}
                     step={1}
-                    onValueChange={(value) => {
-                      setVolume(value[0]);
-                      setIsMuted(value[0] === 0);
-                    }}
-                    className="cursor-pointer"
+                    onValueChange={handleVolumeChange}
+                    className="cursor-pointer [&>span:first-child]:bg-red-600 [&>span:first-child>span]:bg-red-400"
                   />
                 </div>
+                <span className="text-xs text-gray-400 w-8">{isMuted ? '0%' : `${volume}%`}</span>
               </div>
-              
-              <span className="text-sm font-mono">
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </span>
             </div>
             
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               {/* Playback Speed */}
-              <select
-                value={playbackSpeed}
-                onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
-                className="bg-red-900/50 border border-red-500/30 rounded px-2 py-1 text-sm focus:bg-red-800/50 focus:border-red-500"
-              >
-                {playbackSpeeds.map((speed) => (
-                  <option key={speed} value={speed} className="bg-black">
-                    {speed}x
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center space-x-1">
+                <span className="text-xs text-gray-400">Speed:</span>
+                <select
+                  value={playbackSpeed}
+                  onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
+                  className="bg-red-900/50 border border-red-500/30 rounded px-2 py-1 text-sm focus:bg-red-800/50 focus:border-red-500 min-w-[60px]"
+                >
+                  {playbackSpeeds.map((speed) => (
+                    <option key={speed} value={speed} className="bg-black">
+                      {speed}x
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Quality Selection */}
+              <div className="flex items-center space-x-1">
+                <span className="text-xs text-gray-400">Quality:</span>
+                <select
+                  value={selectedQuality}
+                  onChange={(e) => setSelectedQuality(e.target.value)}
+                  className="bg-red-900/50 border border-red-500/30 rounded px-2 py-1 text-sm focus:bg-red-800/50 focus:border-red-500 min-w-[70px]"
+                >
+                  {qualities.map((quality) => (
+                    <option key={quality} value={quality} className="bg-black">
+                      {quality}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* Audio Selection */}
-              <div className="flex items-center space-x-2">
-                <Languages className="h-4 w-4" />
+              <div className="flex items-center space-x-1">
+                <Languages className="h-4 w-4 text-gray-400" />
                 <select
                   value={selectedAudio}
                   onChange={(e) => setSelectedAudio(e.target.value)}
-                  className="bg-red-900/50 border border-red-500/30 rounded px-2 py-1 text-sm focus:bg-red-800/50 focus:border-red-500"
+                  className="bg-red-900/50 border border-red-500/30 rounded px-2 py-1 text-sm focus:bg-red-800/50 focus:border-red-500 min-w-[100px]"
                 >
                   {audioTracks.map((track) => (
                     <option key={track.id} value={track.id} className="bg-black">
@@ -199,19 +254,6 @@ const VideoPlayer = () => {
                   ))}
                 </select>
               </div>
-
-              {/* Quality Selection */}
-              <select
-                value={selectedQuality}
-                onChange={(e) => setSelectedQuality(e.target.value)}
-                className="bg-red-900/50 border border-red-500/30 rounded px-2 py-1 text-sm focus:bg-red-800/50 focus:border-red-500"
-              >
-                {qualities.map((quality) => (
-                  <option key={quality} value={quality} className="bg-black">
-                    {quality}
-                  </option>
-                ))}
-              </select>
 
               <Button 
                 variant="ghost" 
@@ -245,25 +287,37 @@ const VideoPlayer = () => {
           </p>
         </div>
 
-        {/* Current Playback Info */}
-        <div className="bg-gradient-to-r from-red-900/20 to-black/40 rounded-lg p-4 mb-6 border border-red-500/20">
-          <h3 className="text-lg font-semibold mb-2 text-red-400">Now Playing</h3>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <span className="text-2xl">{audioTracks.find(t => t.id === selectedAudio)?.flag}</span>
-              <span className="text-red-300 font-medium">
+        {/* Enhanced Playback Info */}
+        <div className="bg-gradient-to-r from-red-900/20 to-black/40 rounded-lg p-6 mb-6 border border-red-500/20">
+          <h3 className="text-xl font-semibold mb-4 text-red-400">Current Playback Settings</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-black/30 rounded p-3">
+              <span className="text-2xl mb-2 block">{audioTracks.find(t => t.id === selectedAudio)?.flag}</span>
+              <span className="text-red-300 font-medium block">
                 {audioTracks.find(t => t.id === selectedAudio)?.label} Audio
               </span>
-              <Badge variant="outline" className="border-red-500 text-red-400">
+            </div>
+            <div className="bg-black/30 rounded p-3">
+              <Badge variant="outline" className="border-red-500 text-red-400 mb-2">
                 {selectedQuality}
               </Badge>
-              <Badge variant="outline" className="border-red-500 text-red-400">
-                Speed: {playbackSpeed}x
-              </Badge>
+              <p className="text-gray-400 text-sm">Video Quality</p>
             </div>
-            <div className="text-right">
-              <p className="text-red-400 text-sm">Volume: {isMuted ? 'Muted' : `${volume}%`}</p>
-              <p className="text-gray-400 text-sm">Progress: {Math.round((currentTime / duration) * 100)}%</p>
+            <div className="bg-black/30 rounded p-3">
+              <Badge variant="outline" className="border-red-500 text-red-400 mb-2">
+                {playbackSpeed}x Speed
+              </Badge>
+              <p className="text-gray-400 text-sm">Playback Rate</p>
+            </div>
+            <div className="bg-black/30 rounded p-3">
+              <p className="text-red-400 text-lg font-semibold">{isMuted ? 'Muted' : `${volume}%`}</p>
+              <p className="text-gray-400 text-sm">Volume Level</p>
+            </div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-red-500/20">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400">Progress:</span>
+              <span className="text-red-400 font-semibold">{Math.round((currentTime / duration) * 100)}% Complete</span>
             </div>
           </div>
         </div>
