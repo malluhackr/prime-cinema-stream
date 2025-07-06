@@ -1,12 +1,12 @@
 
 import { useState } from "react";
-import { Search, Play, Info, Star, Clock } from "lucide-react";
+import { Search, Play, Menu, Home, Clock, TrendingUp, Globe, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
+import MovieCard from "@/components/MovieCard";
 
 interface Movie {
   id: string;
@@ -20,15 +20,30 @@ interface Movie {
   cast: string[];
   description: string;
   poster: string;
-  trailer?: string;
+}
+
+interface WebSeries {
+  id: string;
+  title: string;
+  language: string;
+  year: number;
+  rating: number;
+  seasons: number;
+  genre: string[];
+  description: string;
+  poster: string;
 }
 
 const Index = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [selectedSeries, setSelectedSeries] = useState<WebSeries | null>(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  // Sample movie data - in a real app, this would come from an API
+  // Sample movie data with more content
   const movies: Movie[] = [
+    // Malayalam Movies
     {
       id: "1",
       title: "Pulimurugan",
@@ -57,6 +72,20 @@ const Index = () => {
     },
     {
       id: "3",
+      title: "Minnal Murali",
+      language: "malayalam",
+      year: 2021,
+      rating: 7.8,
+      duration: "2h 38m",
+      genre: ["Action", "Superhero"],
+      director: "Basil Joseph",
+      cast: ["Tovino Thomas", "Guru Somasundaram"],
+      description: "A tailor gains special powers after being struck by lightning, but must take on an unexpected enemy.",
+      poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400"
+    },
+    // Tamil Movies
+    {
+      id: "4",
       title: "Vikram",
       language: "tamil",
       year: 2022,
@@ -69,7 +98,7 @@ const Index = () => {
       poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400"
     },
     {
-      id: "4",
+      id: "5",
       title: "Ponniyin Selvan I",
       language: "tamil",
       year: 2022,
@@ -81,8 +110,9 @@ const Index = () => {
       description: "Arulmozhi Varman continues on his journey to become Rajaraja I, the greatest ruler of the historic Chola empire.",
       poster: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400"
     },
+    // Telugu Movies
     {
-      id: "5",
+      id: "6",
       title: "RRR",
       language: "telugu",
       year: 2022,
@@ -95,7 +125,7 @@ const Index = () => {
       poster: "https://images.unsplash.com/photo-1489599988341-4c31b197df07?w=400"
     },
     {
-      id: "6",
+      id: "7",
       title: "Pushpa: The Rise",
       language: "telugu",
       year: 2021,
@@ -109,15 +139,82 @@ const Index = () => {
     }
   ];
 
-  const featuredMovie = movies[0];
+  // Web Series Data
+  const webSeries: WebSeries[] = [
+    {
+      id: "ws1",
+      title: "The Boys",
+      language: "english",
+      year: 2019,
+      rating: 8.7,
+      seasons: 4,
+      genre: ["Action", "Comedy", "Crime"],
+      description: "A group of vigilantes set out to take down corrupt superheroes with no more than blue-collar grit and a willingness to fight dirty.",
+      poster: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400"
+    },
+    {
+      id: "ws2",
+      title: "Dark",
+      language: "german",
+      year: 2017,
+      rating: 8.8,
+      seasons: 3,
+      genre: ["Sci-Fi", "Thriller", "Drama"],
+      description: "A missing child causes four families to help each other for answers and forces them to face their own dark secrets.",
+      poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400"
+    },
+    {
+      id: "ws3",
+      title: "Money Heist",
+      language: "spanish",
+      year: 2017,
+      rating: 8.2,
+      seasons: 5,
+      genre: ["Crime", "Drama", "Thriller"],
+      description: "An unusual group of robbers attempt to carry out the most perfect robbery in Spanish history - stealing 2.4 billion euros from the Royal Mint of Spain.",
+      poster: "https://images.unsplash.com/photo-1489599988341-4c31b197df07?w=400"
+    }
+  ];
 
-  const filteredMovies = movies.filter(movie =>
-    movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    movie.genre.some(g => g.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const menuItems = [
+    { icon: Home, label: "Home", id: "home" },
+    { icon: Clock, label: "Latest Movie", id: "latest-movie" },
+    { icon: Play, label: "Latest Web Serial", id: "latest-series" },
+    { icon: TrendingUp, label: "Trending Movie", id: "trending-movie" },
+    { icon: TrendingUp, label: "Trending Web Series", id: "trending-series" },
+    { icon: Globe, label: "Malayalam Dubbed Movie", id: "dubbed" },
+    { icon: Shield, label: "Privacy Policy", id: "privacy" }
+  ];
+
+  const handleMenuClick = (id: string) => {
+    if (id === "privacy") {
+      navigate("/privacy-policy");
+    }
+    setShowMobileMenu(false);
+  };
+
+  const handleMovieClick = (movie: Movie) => {
+    setSelectedMovie(movie);
+  };
+
+  const handlePlayMovie = () => {
+    navigate("/video-player");
+  };
 
   const getMoviesByLanguage = (language: string) => {
-    return filteredMovies.filter(movie => movie.language === language);
+    return movies.filter(movie => movie.language === language);
+  };
+
+  const getLatestMovies = () => {
+    return [...movies].sort((a, b) => b.year - a.year).slice(0, 6);
+  };
+
+  const getTrendingMovies = () => {
+    return [...movies].sort((a, b) => b.rating - a.rating).slice(0, 6);
+  };
+
+  const getTrendingWebSeries = () => {
+    return webSeries.slice(0, 6);
   };
 
   return (
@@ -130,9 +227,22 @@ const Index = () => {
               <h1 className="text-3xl font-bold bg-gold-gradient bg-clip-text text-transparent">
                 KeralaPrime
               </h1>
+              {/* Desktop Menu */}
+              <nav className="hidden lg:flex items-center space-x-6">
+                {menuItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleMenuClick(item.id)}
+                    className="flex items-center space-x-2 text-gray-300 hover:text-cinema-gold transition-colors"
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </nav>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="relative">
+              <div className="relative hidden md:block">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   placeholder="Search movies..."
@@ -141,145 +251,191 @@ const Index = () => {
                   className="pl-10 w-80 bg-white/10 border-white/20 text-white placeholder:text-gray-400"
                 />
               </div>
+              {/* Mobile Menu Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden text-white"
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+              >
+                <Menu className="h-6 w-6" />
+              </Button>
             </div>
           </div>
+          
+          {/* Mobile Menu */}
+          {showMobileMenu && (
+            <div className="lg:hidden mt-4 pb-4 border-t border-white/20 pt-4">
+              <div className="grid grid-cols-2 gap-2">
+                {menuItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleMenuClick(item.id)}
+                    className="flex items-center space-x-2 text-gray-300 hover:text-cinema-gold transition-colors p-2 rounded hover:bg-white/10"
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span className="text-sm">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative h-[70vh] overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url(${featuredMovie.poster})`,
-          }}
-        >
-          <div className="absolute inset-0 bg-black/60"></div>
-        </div>
-        <div className="relative z-10 container mx-auto px-6 h-full flex items-center">
-          <div className="max-w-2xl animate-fade-in">
-            <Badge className="mb-4 bg-cinema-gold text-black">Featured Movie</Badge>
-            <h2 className="text-6xl font-bold mb-4 text-shadow">{featuredMovie.title}</h2>
-            <p className="text-xl mb-6 text-gray-200 leading-relaxed">
-              {featuredMovie.description}
-            </p>
-            <div className="flex items-center space-x-4 mb-8">
-              <div className="flex items-center space-x-1">
-                <Star className="h-5 w-5 text-yellow-400 fill-current" />
-                <span className="font-semibold">{featuredMovie.rating}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Clock className="h-5 w-5 text-gray-400" />
-                <span>{featuredMovie.duration}</span>
-              </div>
-              <span className="text-gray-400">{featuredMovie.year}</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button className="bg-red-gradient hover:scale-105 transition-transform text-white font-semibold px-8 py-3">
-                <Play className="mr-2 h-5 w-5" />
-                Play Now
-              </Button>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="border-white/30 text-white hover:bg-white/10 px-8 py-3">
-                    <Info className="mr-2 h-5 w-5" />
-                    More Info
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="bg-cinema-dark border-white/20 text-white max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl">{featuredMovie.title}</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <p className="text-gray-300">{featuredMovie.description}</p>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="font-semibold mb-2">Director</h4>
-                        <p className="text-gray-300">{featuredMovie.director}</p>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-2">Cast</h4>
-                        <p className="text-gray-300">{featuredMovie.cast.join(", ")}</p>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {featuredMovie.genre.map((g) => (
-                        <Badge key={g} variant="secondary" className="bg-cinema-purple">
-                          {g}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Movie Categories */}
-      <section className="container mx-auto px-6 py-12">
-        <Tabs defaultValue="malayalam" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-white/10 border border-white/20 mb-8">
-            <TabsTrigger value="malayalam" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">
-              Malayalam
-            </TabsTrigger>
-            <TabsTrigger value="tamil" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">
-              Tamil
-            </TabsTrigger>
-            <TabsTrigger value="telugu" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">
-              Telugu
-            </TabsTrigger>
-            <TabsTrigger value="english" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">
-              English
-            </TabsTrigger>
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-8">
+        <Tabs defaultValue="home" className="w-full">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 bg-white/10 border border-white/20 mb-8">
+            <TabsTrigger value="home" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Home</TabsTrigger>
+            <TabsTrigger value="latest-movie" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Latest</TabsTrigger>
+            <TabsTrigger value="latest-series" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Series</TabsTrigger>
+            <TabsTrigger value="trending-movie" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Trending</TabsTrigger>
+            <TabsTrigger value="trending-series" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Hot Series</TabsTrigger>
+            <TabsTrigger value="malayalam" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Malayalam</TabsTrigger>
+            <TabsTrigger value="dubbed" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Dubbed</TabsTrigger>
           </TabsList>
 
-          {["malayalam", "tamil", "telugu", "english"].map((language) => (
-            <TabsContent key={language} value={language} className="animate-fade-in">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {getMoviesByLanguage(language).map((movie) => (
-                  <Card
-                    key={movie.id}
-                    className="bg-white/5 border-white/10 overflow-hidden card-hover cursor-pointer group"
-                    onClick={() => setSelectedMovie(movie)}
-                  >
-                    <div className="relative">
-                      <img
-                        src={movie.poster}
-                        alt={movie.title}
-                        className="w-full h-80 object-cover transition-transform group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Play className="h-12 w-12 text-white" />
-                      </div>
-                    </div>
-                    <CardContent className="p-4">
-                      <h3 className="font-bold text-lg mb-2 text-white group-hover:text-cinema-gold transition-colors">
-                        {movie.title}
-                      </h3>
-                      <div className="flex items-center justify-between text-sm text-gray-400 mb-2">
-                        <span>{movie.year}</span>
-                        <div className="flex items-center space-x-1">
-                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                          <span>{movie.rating}</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {movie.genre.slice(0, 2).map((g) => (
-                          <Badge key={g} variant="secondary" className="text-xs bg-cinema-purple/50">
-                            {g}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          ))}
+          {/* Home Tab */}
+          <TabsContent value="home" className="animate-fade-in">
+            <div className="space-y-12">
+              {/* Featured Section */}
+              <section>
+                <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Featured Today</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {getLatestMovies().slice(0, 6).map((movie) => (
+                    <MovieCard
+                      key={movie.id}
+                      movie={movie}
+                      onClick={() => handleMovieClick(movie)}
+                      size="small"
+                    />
+                  ))}
+                </div>
+              </section>
+
+              {/* Trending Movies */}
+              <section>
+                <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Trending Movies</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {getTrendingMovies().map((movie) => (
+                    <MovieCard
+                      key={movie.id}
+                      movie={movie}
+                      onClick={() => handleMovieClick(movie)}
+                      size="small"
+                    />
+                  ))}
+                </div>
+              </section>
+            </div>
+          </TabsContent>
+
+          {/* Latest Movies Tab */}
+          <TabsContent value="latest-movie" className="animate-fade-in">
+            <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Latest Movies (Malayalam First)</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {getLatestMovies().map((movie) => (
+                <MovieCard
+                  key={movie.id}
+                  movie={movie}
+                  onClick={() => handleMovieClick(movie)}
+                  size="small"
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Latest Web Series Tab */}
+          <TabsContent value="latest-series" className="animate-fade-in">
+            <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Latest Web Series</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {webSeries.map((series) => (
+                <MovieCard
+                  key={series.id}
+                  movie={{
+                    id: series.id,
+                    title: series.title,
+                    rating: series.rating,
+                    year: series.year,
+                    genre: series.genre,
+                    poster: series.poster
+                  }}
+                  onClick={() => setSelectedSeries(series)}
+                  size="small"
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Trending Movies Tab */}
+          <TabsContent value="trending-movie" className="animate-fade-in">
+            <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Trending Movies (Malayalam Amazon Prime)</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {getTrendingMovies().map((movie) => (
+                <MovieCard
+                  key={movie.id}
+                  movie={movie}
+                  onClick={() => handleMovieClick(movie)}
+                  size="small"
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Trending Web Series Tab */}
+          <TabsContent value="trending-series" className="animate-fade-in">
+            <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Trending Web Series</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {getTrendingWebSeries().map((series) => (
+                <MovieCard
+                  key={series.id}
+                  movie={{
+                    id: series.id,
+                    title: series.title,
+                    rating: series.rating,
+                    year: series.year,
+                    genre: series.genre,
+                    poster: series.poster
+                  }}
+                  onClick={() => setSelectedSeries(series)}
+                  size="small"
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Malayalam Movies Tab */}
+          <TabsContent value="malayalam" className="animate-fade-in">
+            <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Malayalam Movies</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {getMoviesByLanguage("malayalam").map((movie) => (
+                <MovieCard
+                  key={movie.id}
+                  movie={movie}
+                  onClick={() => handleMovieClick(movie)}
+                  size="small"
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Malayalam Dubbed Movies Tab */}
+          <TabsContent value="dubbed" className="animate-fade-in">
+            <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Malayalam Dubbed Movies</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {movies.filter(m => m.language !== "malayalam").map((movie) => (
+                <MovieCard
+                  key={movie.id}
+                  movie={{...movie, title: `${movie.title} (Malayalam Dubbed)`}}
+                  onClick={() => handleMovieClick(movie)}
+                  size="small"
+                />
+              ))}
+            </div>
+          </TabsContent>
         </Tabs>
-      </section>
+      </div>
 
       {/* Movie Detail Modal */}
       {selectedMovie && (
@@ -298,19 +454,9 @@ const Index = () => {
                   <DialogTitle className="text-3xl">{selectedMovie.title}</DialogTitle>
                 </DialogHeader>
                 <div className="flex items-center space-x-4 text-sm">
-                  <div className="flex items-center space-x-1">
-                    <Star className="h-5 w-5 text-yellow-400 fill-current" />
-                    <span className="font-semibold">{selectedMovie.rating}</span>
-                  </div>
                   <span>{selectedMovie.year}</span>
                   <span>{selectedMovie.duration}</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {selectedMovie.genre.map((g) => (
-                    <Badge key={g} className="bg-cinema-purple">
-                      {g}
-                    </Badge>
-                  ))}
+                  <span className="font-semibold">{selectedMovie.rating}⭐</span>
                 </div>
                 <p className="text-gray-300 leading-relaxed">{selectedMovie.description}</p>
                 <div className="space-y-3">
@@ -324,12 +470,49 @@ const Index = () => {
                   </div>
                 </div>
                 <div className="flex space-x-4 pt-4">
-                  <Button className="bg-red-gradient hover:scale-105 transition-transform flex-1">
+                  <Button 
+                    className="bg-red-gradient hover:scale-105 transition-transform flex-1"
+                    onClick={handlePlayMovie}
+                  >
                     <Play className="mr-2 h-5 w-5" />
                     Play Now
                   </Button>
-                  <Button variant="outline" className="border-white/30 text-white hover:bg-white/10">
-                    Add to Watchlist
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Web Series Detail Modal */}
+      {selectedSeries && (
+        <Dialog open={!!selectedSeries} onOpenChange={() => setSelectedSeries(null)}>
+          <DialogContent className="bg-cinema-dark border-white/20 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <img
+                  src={selectedSeries.poster}
+                  alt={selectedSeries.title}
+                  className="w-full rounded-lg"
+                />
+              </div>
+              <div className="space-y-4">
+                <DialogHeader>
+                  <DialogTitle className="text-3xl">{selectedSeries.title}</DialogTitle>
+                </DialogHeader>
+                <div className="flex items-center space-x-4 text-sm">
+                  <span>{selectedSeries.year}</span>
+                  <span>{selectedSeries.seasons} Seasons</span>
+                  <span className="font-semibold">{selectedSeries.rating}⭐</span>
+                </div>
+                <p className="text-gray-300 leading-relaxed">{selectedSeries.description}</p>
+                <div className="flex space-x-4 pt-4">
+                  <Button 
+                    className="bg-red-gradient hover:scale-105 transition-transform flex-1"
+                    onClick={handlePlayMovie}
+                  >
+                    <Play className="mr-2 h-5 w-5" />
+                    Play Now
                   </Button>
                 </div>
               </div>
