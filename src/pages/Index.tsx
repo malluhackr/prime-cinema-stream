@@ -1,12 +1,13 @@
-
 import { useState } from "react";
-import { Search, Play, Menu, Home, Clock, TrendingUp, Globe, Shield } from "lucide-react";
+import { Search, Play, Menu, Home, Clock, TrendingUp, Globe, Shield, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import MovieCard from "@/components/MovieCard";
+import HeroBanner from "@/components/HeroBanner";
+import WatchingNow from "@/components/WatchingNow";
 
 interface Movie {
   id: string;
@@ -40,10 +41,18 @@ const Index = () => {
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   const [selectedSeries, setSelectedSeries] = useState<WebSeries | null>(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  
+  // Simulate user authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentWatchingMovie] = useState({
+    id: "1",
+    title: "Pulimurugan",
+    poster: "https://images.unsplash.com/photo-1489599988341-4c31b197df07?w=400",
+    progress: 45
+  });
 
-  // Sample movie data with more content
+  // Enhanced movie data with descriptions for banner
   const movies: Movie[] = [
-    // Malayalam Movies
     {
       id: "1",
       title: "Pulimurugan",
@@ -54,8 +63,8 @@ const Index = () => {
       genre: ["Action", "Thriller"],
       director: "Vysakh",
       cast: ["Mohanlal", "Kamalini Mukherjee", "Jagapathi Babu"],
-      description: "A man-eating tiger terrorizes the locals of a village. Murugan, a hunter, is summoned to kill the predator.",
-      poster: "https://images.unsplash.com/photo-1489599988341-4c31b197df07?w=400"
+      description: "A man-eating tiger terrorizes the locals of a village. Murugan, a hunter, is summoned to kill the predator. An action-packed thriller that showcases the raw power of nature and human determination.",
+      poster: "https://images.unsplash.com/photo-1489599988341-4c31b197df07?w=800"
     },
     {
       id: "2",
@@ -83,7 +92,6 @@ const Index = () => {
       description: "A tailor gains special powers after being struck by lightning, but must take on an unexpected enemy.",
       poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400"
     },
-    // Tamil Movies
     {
       id: "4",
       title: "Vikram",
@@ -94,8 +102,8 @@ const Index = () => {
       genre: ["Action", "Thriller"],
       director: "Lokesh Kanagaraj",
       cast: ["Kamal Haasan", "Vijay Sethupathi", "Fahadh Faasil"],
-      description: "Members of a black ops team must track and eliminate a gang of masked murderers.",
-      poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400"
+      description: "Members of a black ops team must track and eliminate a gang of masked murderers. High-octane action meets brilliant storytelling in this thrilling masterpiece.",
+      poster: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800"
     },
     {
       id: "5",
@@ -110,7 +118,6 @@ const Index = () => {
       description: "Arulmozhi Varman continues on his journey to become Rajaraja I, the greatest ruler of the historic Chola empire.",
       poster: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400"
     },
-    // Telugu Movies
     {
       id: "6",
       title: "RRR",
@@ -121,8 +128,8 @@ const Index = () => {
       genre: ["Action", "Drama"],
       director: "S.S. Rajamouli",
       cast: ["N.T. Rama Rao Jr.", "Ram Charan", "Alia Bhatt"],
-      description: "A tale of two legendary revolutionaries and their journey far away from home before they started fighting for their country.",
-      poster: "https://images.unsplash.com/photo-1489599988341-4c31b197df07?w=400"
+      description: "A tale of two legendary revolutionaries and their journey far away from home before they started fighting for their country. Epic action sequences and emotional storytelling.",
+      poster: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=800"
     },
     {
       id: "7",
@@ -139,7 +146,6 @@ const Index = () => {
     }
   ];
 
-  // Web Series Data
   const webSeries: WebSeries[] = [
     {
       id: "ws1",
@@ -186,6 +192,22 @@ const Index = () => {
     { icon: Shield, label: "Privacy Policy", id: "privacy" }
   ];
 
+  const handleLogin = () => {
+    navigate("/login");
+  };
+
+  const handlePlayFromBanner = (movieId: string) => {
+    navigate("/video-player");
+  };
+
+  const handleMovieInfo = (movie: Movie) => {
+    setSelectedMovie(movie);
+  };
+
+  const handleContinueWatching = () => {
+    navigate("/video-player");
+  };
+
   const handleMenuClick = (id: string) => {
     if (id === "privacy") {
       navigate("/privacy-policy");
@@ -218,13 +240,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cinema-dark text-white">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="relative z-50 bg-black/50 backdrop-blur-md border-b border-white/10">
+      <header className="relative z-50 bg-gradient-to-r from-red-900/20 to-black/60 backdrop-blur-md border-b border-red-500/20">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-8">
-              <h1 className="text-3xl font-bold bg-gold-gradient bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">
                 KeralaPrime
               </h1>
               {/* Desktop Menu */}
@@ -248,14 +270,32 @@ const Index = () => {
                   placeholder="Search movies..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-80 bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                  className="pl-10 w-80 bg-red-900/20 border-red-500/30 text-white placeholder:text-gray-400 focus:border-red-500"
                 />
               </div>
+              
+              {!isAuthenticated ? (
+                <Button
+                  onClick={handleLogin}
+                  className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-full transform hover:scale-105 transition-all duration-200"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Sign In
+                </Button>
+              ) : (
+                <div className="w-64">
+                  <WatchingNow
+                    currentMovie={currentWatchingMovie}
+                    onContinueWatching={handleContinueWatching}
+                  />
+                </div>
+              )}
+              
               {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden text-white"
+                className="lg:hidden text-white hover:bg-red-600/20"
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
               >
                 <Menu className="h-6 w-6" />
@@ -283,17 +323,26 @@ const Index = () => {
         </div>
       </header>
 
+      {/* Hero Banner */}
+      <div className="container mx-auto px-6 pt-8">
+        <HeroBanner
+          movies={movies.slice(0, 4)}
+          onPlayMovie={handlePlayFromBanner}
+          onMovieInfo={handleMovieInfo}
+        />
+      </div>
+
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8">
         <Tabs defaultValue="home" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 bg-white/10 border border-white/20 mb-8">
-            <TabsTrigger value="home" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Home</TabsTrigger>
-            <TabsTrigger value="latest-movie" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Latest</TabsTrigger>
-            <TabsTrigger value="latest-series" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Series</TabsTrigger>
-            <TabsTrigger value="trending-movie" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Trending</TabsTrigger>
-            <TabsTrigger value="trending-series" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Hot Series</TabsTrigger>
-            <TabsTrigger value="malayalam" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Malayalam</TabsTrigger>
-            <TabsTrigger value="dubbed" className="data-[state=active]:bg-cinema-gold data-[state=active]:text-black">Dubbed</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 bg-red-900/20 border border-red-500/30 mb-8">
+            <TabsTrigger value="home" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Home</TabsTrigger>
+            <TabsTrigger value="latest-movie" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Latest</TabsTrigger>
+            <TabsTrigger value="latest-series" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Series</TabsTrigger>
+            <TabsTrigger value="trending-movie" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Trending</TabsTrigger>
+            <TabsTrigger value="trending-series" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Hot Series</TabsTrigger>
+            <TabsTrigger value="malayalam" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Malayalam</TabsTrigger>
+            <TabsTrigger value="dubbed" className="data-[state=active]:bg-red-600 data-[state=active]:text-white">Dubbed</TabsTrigger>
           </TabsList>
 
           {/* Home Tab */}
@@ -301,7 +350,7 @@ const Index = () => {
             <div className="space-y-12">
               {/* Featured Section */}
               <section>
-                <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Featured Today</h2>
+                <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Featured Today</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   {getLatestMovies().slice(0, 6).map((movie) => (
                     <MovieCard
@@ -316,7 +365,7 @@ const Index = () => {
 
               {/* Trending Movies */}
               <section>
-                <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Trending Movies</h2>
+                <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Trending Movies</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   {getTrendingMovies().map((movie) => (
                     <MovieCard
@@ -333,7 +382,7 @@ const Index = () => {
 
           {/* Latest Movies Tab */}
           <TabsContent value="latest-movie" className="animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Latest Movies (Malayalam First)</h2>
+            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Latest Movies (Malayalam First)</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {getLatestMovies().map((movie) => (
                 <MovieCard
@@ -348,7 +397,7 @@ const Index = () => {
 
           {/* Latest Web Series Tab */}
           <TabsContent value="latest-series" className="animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Latest Web Series</h2>
+            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Latest Web Series</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {webSeries.map((series) => (
                 <MovieCard
@@ -370,7 +419,7 @@ const Index = () => {
 
           {/* Trending Movies Tab */}
           <TabsContent value="trending-movie" className="animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Trending Movies (Malayalam Amazon Prime)</h2>
+            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Trending Movies (Malayalam Amazon Prime)</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {getTrendingMovies().map((movie) => (
                 <MovieCard
@@ -385,7 +434,7 @@ const Index = () => {
 
           {/* Trending Web Series Tab */}
           <TabsContent value="trending-series" className="animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Trending Web Series</h2>
+            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Trending Web Series</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {getTrendingWebSeries().map((series) => (
                 <MovieCard
@@ -407,7 +456,7 @@ const Index = () => {
 
           {/* Malayalam Movies Tab */}
           <TabsContent value="malayalam" className="animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Malayalam Movies</h2>
+            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Malayalam Movies</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {getMoviesByLanguage("malayalam").map((movie) => (
                 <MovieCard
@@ -422,7 +471,7 @@ const Index = () => {
 
           {/* Malayalam Dubbed Movies Tab */}
           <TabsContent value="dubbed" className="animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 text-cinema-gold">Malayalam Dubbed Movies</h2>
+            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Malayalam Dubbed Movies</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {movies.filter(m => m.language !== "malayalam").map((movie) => (
                 <MovieCard

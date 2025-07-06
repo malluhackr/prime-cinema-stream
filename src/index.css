@@ -1,39 +1,39 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system with cinema-inspired colors */
-
 @layer base {
   :root {
-    --background: 10 10 15;
+    --background: 0 0 0;
     --foreground: 255 255 255;
 
-    --card: 15 15 20;
+    --card: 10 10 10;
     --card-foreground: 255 255 255;
 
-    --popover: 15 15 20;
+    --popover: 15 15 15;
     --popover-foreground: 255 255 255;
 
-    --primary: 251 146 60;
-    --primary-foreground: 0 0 0;
+    --primary: 220 38 38;
+    --primary-foreground: 255 255 255;
 
-    --secondary: 31 31 35;
+    --secondary: 20 20 20;
     --secondary-foreground: 255 255 255;
 
-    --muted: 31 31 35;
+    --muted: 30 30 30;
     --muted-foreground: 156 163 175;
 
-    --accent: 107 70 193;
+    --accent: 220 38 38;
     --accent-foreground: 255 255 255;
 
     --destructive: 220 38 38;
     --destructive-foreground: 255 255 255;
 
-    --border: 31 31 35;
-    --input: 31 31 35;
-    --ring: 251 146 60;
+    --border: 40 40 40;
+    --input: 30 30 30;
+    --ring: 220 38 38;
 
     --radius: 0.75rem;
   }
@@ -45,9 +45,15 @@
   }
 
   body {
-    @apply bg-cinema-dark text-foreground font-sans;
-    background: linear-gradient(135deg, #0A0A0F 0%, #1F1F23 50%, #2D1B69 100%);
+    @apply bg-black text-foreground;
+    font-family: 'Exo 2', sans-serif;
+    background: radial-gradient(ellipse at center, #1a0000 0%, #000000 70%);
     min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
   }
 
   /* Custom scrollbar */
@@ -56,23 +62,23 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #1F1F23;
+    background: #1a0000;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #6B46C1;
+    background: #dc2626;
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #7C3AED;
+    background: #ef4444;
   }
 }
 
 /* Custom utility classes */
 @layer utilities {
   .text-shadow {
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    text-shadow: 2px 2px 4px rgba(220, 38, 38, 0.5);
   }
   
   .card-hover {
@@ -81,10 +87,28 @@
   
   .card-hover:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(107, 70, 193, 0.3);
+    box-shadow: 0 20px 40px rgba(220, 38, 38, 0.4);
   }
   
   .cinema-glow {
-    box-shadow: 0 0 20px rgba(251, 146, 60, 0.3);
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.6);
+  }
+
+  .futuristic-border {
+    border: 2px solid;
+    border-image: linear-gradient(45deg, #dc2626, #7f1d1d, #dc2626) 1;
+  }
+
+  .neon-text {
+    text-shadow: 
+      0 0 5px rgba(220, 38, 38, 0.8),
+      0 0 10px rgba(220, 38, 38, 0.6),
+      0 0 15px rgba(220, 38, 38, 0.4);
+  }
+
+  .glass-morphism {
+    background: rgba(220, 38, 38, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(220, 38, 38, 0.2);
   }
 }
