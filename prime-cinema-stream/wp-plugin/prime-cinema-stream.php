@@ -1,12 +1,14 @@
 <?php
 /*
-Plugin Name: Prime Cinema Stream
-Description: A test plugin from GitHub for WP Pusher.
-Version: 1.0
-Author: malluhackr
+Plugin Name: Keralaprime
+Description: A simple "Hello World" plugin.
+Author: prime
+Version: 1.1.1
 */
 
-function prime_cinema_notice() {
-    echo '<div class="notice notice-success"><p>✅ Prime Cinema Stream plugin is working!</p></div>';
+function hello_world_display() {
+  echo "Hello World using a template changed by Vikas 17 aug Push 1";
 }
-add_action('admin_notices', 'prime_cinema_notice');
+
+add_action( 'wp_footer', 'hello_world_display' );
+
