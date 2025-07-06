@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Search, Play, Menu, Home, Clock, TrendingUp, Globe, Shield, User } from "lucide-react";
+import { Home, Clock, Play, TrendingUp, Globe, Shield } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
-import MovieCard from "@/components/MovieCard";
+import Header from "@/components/Header";
 import HeroBanner from "@/components/HeroBanner";
-import WatchingNow from "@/components/WatchingNow";
+import MovieSection from "@/components/MovieSection";
+import TabContentComponent from "@/components/TabContent";
 
 interface Movie {
   id: string;
@@ -192,10 +192,6 @@ const Index = () => {
     { icon: Shield, label: "Privacy Policy", id: "privacy" }
   ];
 
-  const handleLogin = () => {
-    navigate("/login");
-  };
-
   const handlePlayFromBanner = (movieId: string) => {
     navigate("/video-player");
   };
@@ -217,6 +213,10 @@ const Index = () => {
 
   const handleMovieClick = (movie: Movie) => {
     setSelectedMovie(movie);
+  };
+
+  const handleSeriesClick = (series: WebSeries) => {
+    setSelectedSeries(series);
   };
 
   const handlePlayMovie = () => {
@@ -241,87 +241,17 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="relative z-50 bg-gradient-to-r from-red-900/20 to-black/60 backdrop-blur-md border-b border-red-500/20">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-8">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">
-                KeralaPrime
-              </h1>
-              {/* Desktop Menu */}
-              <nav className="hidden lg:flex items-center space-x-6">
-                {menuItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleMenuClick(item.id)}
-                    className="flex items-center space-x-2 text-gray-300 hover:text-cinema-gold transition-colors"
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.label}</span>
-                  </button>
-                ))}
-              </nav>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="relative hidden md:block">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search movies..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-80 bg-red-900/20 border-red-500/30 text-white placeholder:text-gray-400 focus:border-red-500"
-                />
-              </div>
-              
-              {!isAuthenticated ? (
-                <Button
-                  onClick={handleLogin}
-                  className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-full transform hover:scale-105 transition-all duration-200"
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  Sign In
-                </Button>
-              ) : (
-                <div className="w-64">
-                  <WatchingNow
-                    currentMovie={currentWatchingMovie}
-                    onContinueWatching={handleContinueWatching}
-                  />
-                </div>
-              )}
-              
-              {/* Mobile Menu Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden text-white hover:bg-red-600/20"
-                onClick={() => setShowMobileMenu(!showMobileMenu)}
-              >
-                <Menu className="h-6 w-6" />
-              </Button>
-            </div>
-          </div>
-          
-          {/* Mobile Menu */}
-          {showMobileMenu && (
-            <div className="lg:hidden mt-4 pb-4 border-t border-white/20 pt-4">
-              <div className="grid grid-cols-2 gap-2">
-                {menuItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleMenuClick(item.id)}
-                    className="flex items-center space-x-2 text-gray-300 hover:text-cinema-gold transition-colors p-2 rounded hover:bg-white/10"
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span className="text-sm">{item.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </header>
+      <Header
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        isAuthenticated={isAuthenticated}
+        currentWatchingMovie={currentWatchingMovie}
+        onContinueWatching={handleContinueWatching}
+        showMobileMenu={showMobileMenu}
+        setShowMobileMenu={setShowMobileMenu}
+        menuItems={menuItems}
+        onMenuClick={handleMenuClick}
+      />
 
       {/* Hero Banner */}
       <div className="container mx-auto px-6 pt-8">
@@ -346,143 +276,61 @@ const Index = () => {
           </TabsList>
 
           {/* Home Tab */}
-          <TabsContent value="home" className="animate-fade-in">
-            <div className="space-y-12">
-              {/* Featured Section */}
-              <section>
-                <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Featured Today</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  {getLatestMovies().slice(0, 6).map((movie) => (
-                    <MovieCard
-                      key={movie.id}
-                      movie={movie}
-                      onClick={() => handleMovieClick(movie)}
-                      size="small"
-                    />
-                  ))}
-                </div>
-              </section>
+          <TabContentComponent
+            value="home"
+            title="Featured Today"
+            movies={getLatestMovies().slice(0, 6)}
+            onMovieClick={handleMovieClick}
+            onSeriesClick={handleSeriesClick}
+          />
 
-              {/* Trending Movies */}
-              <section>
-                <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Trending Movies</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  {getTrendingMovies().map((movie) => (
-                    <MovieCard
-                      key={movie.id}
-                      movie={movie}
-                      onClick={() => handleMovieClick(movie)}
-                      size="small"
-                    />
-                  ))}
-                </div>
-              </section>
-            </div>
-          </TabsContent>
+          <TabContentComponent
+            value="latest-movie"
+            title="Latest Movies (Malayalam First)"
+            movies={getLatestMovies()}
+            onMovieClick={handleMovieClick}
+            onSeriesClick={handleSeriesClick}
+          />
 
-          {/* Latest Movies Tab */}
-          <TabsContent value="latest-movie" className="animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Latest Movies (Malayalam First)</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {getLatestMovies().map((movie) => (
-                <MovieCard
-                  key={movie.id}
-                  movie={movie}
-                  onClick={() => handleMovieClick(movie)}
-                  size="small"
-                />
-              ))}
-            </div>
-          </TabsContent>
+          <TabContentComponent
+            value="latest-series"
+            title="Latest Web Series"
+            webSeries={webSeries}
+            onMovieClick={handleMovieClick}
+            onSeriesClick={handleSeriesClick}
+          />
 
-          {/* Latest Web Series Tab */}
-          <TabsContent value="latest-series" className="animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Latest Web Series</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {webSeries.map((series) => (
-                <MovieCard
-                  key={series.id}
-                  movie={{
-                    id: series.id,
-                    title: series.title,
-                    rating: series.rating,
-                    year: series.year,
-                    genre: series.genre,
-                    poster: series.poster
-                  }}
-                  onClick={() => setSelectedSeries(series)}
-                  size="small"
-                />
-              ))}
-            </div>
-          </TabsContent>
+          <TabContentComponent
+            value="trending-movie"
+            title="Trending Movies (Malayalam Amazon Prime)"
+            movies={getTrendingMovies()}
+            onMovieClick={handleMovieClick}
+            onSeriesClick={handleSeriesClick}
+          />
 
-          {/* Trending Movies Tab */}
-          <TabsContent value="trending-movie" className="animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Trending Movies (Malayalam Amazon Prime)</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {getTrendingMovies().map((movie) => (
-                <MovieCard
-                  key={movie.id}
-                  movie={movie}
-                  onClick={() => handleMovieClick(movie)}
-                  size="small"
-                />
-              ))}
-            </div>
-          </TabsContent>
+          <TabContentComponent
+            value="trending-series"
+            title="Trending Web Series"
+            webSeries={getTrendingWebSeries()}
+            onMovieClick={handleMovieClick}
+            onSeriesClick={handleSeriesClick}
+          />
 
-          {/* Trending Web Series Tab */}
-          <TabsContent value="trending-series" className="animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Trending Web Series</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {getTrendingWebSeries().map((series) => (
-                <MovieCard
-                  key={series.id}
-                  movie={{
-                    id: series.id,
-                    title: series.title,
-                    rating: series.rating,
-                    year: series.year,
-                    genre: series.genre,
-                    poster: series.poster
-                  }}
-                  onClick={() => setSelectedSeries(series)}
-                  size="small"
-                />
-              ))}
-            </div>
-          </TabsContent>
+          <TabContentComponent
+            value="malayalam"
+            title="Malayalam Movies"
+            movies={getMoviesByLanguage("malayalam")}
+            onMovieClick={handleMovieClick}
+            onSeriesClick={handleSeriesClick}
+          />
 
-          {/* Malayalam Movies Tab */}
-          <TabsContent value="malayalam" className="animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Malayalam Movies</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {getMoviesByLanguage("malayalam").map((movie) => (
-                <MovieCard
-                  key={movie.id}
-                  movie={movie}
-                  onClick={() => handleMovieClick(movie)}
-                  size="small"
-                />
-              ))}
-            </div>
-          </TabsContent>
-
-          {/* Malayalam Dubbed Movies Tab */}
-          <TabsContent value="dubbed" className="animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Malayalam Dubbed Movies</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {movies.filter(m => m.language !== "malayalam").map((movie) => (
-                <MovieCard
-                  key={movie.id}
-                  movie={{...movie, title: `${movie.title} (Malayalam Dubbed)`}}
-                  onClick={() => handleMovieClick(movie)}
-                  size="small"
-                />
-              ))}
-            </div>
-          </TabsContent>
+          <TabContentComponent
+            value="dubbed"
+            title="Malayalam Dubbed Movies"
+            movies={movies.filter(m => m.language !== "malayalam").map(movie => ({...movie, title: `${movie.title} (Malayalam Dubbed)`}))}
+            onMovieClick={handleMovieClick}
+            onSeriesClick={handleSeriesClick}
+          />
         </Tabs>
       </div>
 
