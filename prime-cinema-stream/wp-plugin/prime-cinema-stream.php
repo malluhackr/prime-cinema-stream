@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: Keralaprime
+Plugin Name: Prime Cinema Stream
 Description: A simple "Hello World" plugin.
-Author: prime
-Version: 1.1.1
+Version: 1.0
+Author: malluhackr
 */
 
 function hello_world_display() {
