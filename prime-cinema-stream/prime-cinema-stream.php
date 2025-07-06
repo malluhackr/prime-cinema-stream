@@ -2,7 +2,7 @@
 /*
 Plugin Name: Prime Cinema Stream
 Description: A test plugin from GitHub using WP Pusher.
-Version: 1.0
+Version: 2.0
 Author: malluhackr
 */
 
